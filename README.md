@@ -2,11 +2,11 @@
 
 A build-ready compatibility package based on the official
 [IRremoteESP8266 v2.9.0](https://github.com/crankyoldgit/IRremoteESP8266)
-release (upstream commit `a0c988c9af5130baae9a0c38dde895e1184b859c`).
+release at upstream commit `a0c988c9af5130baae9a0c38dde895e1184b859c`.
 
-It keeps IRremoteESP8266 responsible for HVAC protocol/state encoding and adds
-an optional timing bridge so ESPHome's `remote_transmitter` can perform the
-physical IR output on LibreTiny targets such as BK7231N.
+IRremoteESP8266 remains responsible for HVAC protocol and state encoding. This
+package adds an optional timing bridge so ESPHome's `remote_transmitter` can
+perform the physical IR output on LibreTiny targets such as BK7231N.
 
 ## ESPHome usage
 
@@ -16,8 +16,8 @@ esphome:
     - IRremoteESP8266=https://github.com/zain1144/IRremoteESP8266-ESPHome-LibreTiny.git#esphome-libretiny
 ```
 
-The complete tested firmware, Tasmota-compatible MQTT/HTTP interface, Home
-Assistant example, and Arabic guide are here:
+The tested firmware, MQTT and Tasmota-compatible HTTP interface, and Arabic
+usage guide are maintained here:
 
 <https://github.com/zain1144/ESPHome-IRHVAC-BK7231N>
 
@@ -33,15 +33,12 @@ See [ESPHOME_LIBRETINY.md](ESPHOME_LIBRETINY.md) for technical details.
 
 ## Package contents
 
-This repository contains all upstream v2.9.0 library sources under `src/`,
-including its locale headers, plus the PlatformIO/Arduino metadata and license
-required for direct installation. Upstream examples, tests, and extended
-documentation remain available in the
-[original repository](https://github.com/crankyoldgit/IRremoteESP8266).
+The repository contains all upstream v2.9.0 library sources under `src/`,
+including locale headers, PlatformIO and Arduino metadata, and the original
+license. Upstream examples, tests, and extended documentation remain available
+in the [original repository](https://github.com/crankyoldgit/IRremoteESP8266).
 
 ## Verified build
-
-Compiled successfully with:
 
 - ESPHome 2026.8.2
 - BK7231N
@@ -51,5 +48,5 @@ Compiled successfully with:
 ## License and attribution
 
 The upstream source remains under its original license and copyright notices.
-See [LICENSE.txt](LICENSE.txt). The compatibility additions are provided under
-the same license.
+See [LICENSE.txt](LICENSE.txt). Compatibility additions use the same license.
+
