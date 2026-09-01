@@ -1,99 +1,55 @@
-![IRremoteESP8266 Library](./assets/images/banner.svg)
+# IRremoteESP8266 for ESPHome / LibreTiny
 
-> **ESPHome/LibreTiny branch:** This fork adds optional IR timing capture for
-> ESPHome transmitters, including Beken/BK7231N. See
-> [ESPHOME_LIBRETINY.md](ESPHOME_LIBRETINY.md). Upstream behaviour is unchanged
-> when the capture bridge is not active.
+A build-ready compatibility package based on the official
+[IRremoteESP8266 v2.9.0](https://github.com/crankyoldgit/IRremoteESP8266)
+release (upstream commit `a0c988c9af5130baae9a0c38dde895e1184b859c`).
 
-[![Build Status](https://github.com/crankyoldgit/IRremoteESP8266/actions/workflows/Build.yml/badge.svg)](../../actions/workflows/Build.yml)
-[![Code Lint](https://github.com/crankyoldgit/IRremoteESP8266/actions/workflows/Lint.yml/badge.svg)](../../actions/workflows/Lint.yml)
-[![Tests](https://github.com/crankyoldgit/IRremoteESP8266/actions/workflows/UnitTests.yml/badge.svg)](../../actions/workflows/UnitTests.yml)
-[![Documentation](https://github.com/crankyoldgit/IRremoteESP8266/actions/workflows/Documentation.yml/badge.svg)](../../actions/workflows/Documentation.yml/badge.svg)
-[![arduino-library-badge](https://www.ardu-badge.com/badge/IRremoteESP8266.svg?)](https://www.ardu-badge.com/IRremoteESP8266)
-[![GitLicense](https://gitlicense.com/badge/crankyoldgit/IRremoteESP8266)](https://gitlicense.com/license/crankyoldgit/IRremoteESP8266)
+It keeps IRremoteESP8266 responsible for HVAC protocol/state encoding and adds
+an optional timing bridge so ESPHome's `remote_transmitter` can perform the
+physical IR output on LibreTiny targets such as BK7231N.
 
-This library enables you to **send _and_ receive** infra-red signals on an [ESP8266](https://github.com/esp8266/Arduino) or an
-[ESP32](https://github.com/espressif/arduino-esp32) using the [Arduino framework](https://www.arduino.cc/) using common 940nm IR LEDs and common IR receiver modules. e.g. TSOP{17,22,24,36,38,44,48}* demodulators etc.
+## ESPHome usage
 
-## v2.9.0 Now Available
-Version 2.9.0 of the library is now [available](https://github.com/crankyoldgit/IRremoteESP8266/releases/latest). You can view the [Release Notes](ReleaseNotes.md) for all the significant changes.
-
-#### Upgrading from pre-v2.0
-Usage of the library has been slightly changed in v2.0. You will need to change your usage to work with v2.0 and beyond. You can read more about the changes required on our [Upgrade to v2.0](https://github.com/crankyoldgit/IRremoteESP8266/wiki/Upgrading-to-v2.0) page.
-
-#### Upgrading from pre-v2.5
-The library has changed from using constants declared as `#define` to
-[const](https://google.github.io/styleguide/cppguide.html#Constant_Names) with
-the appropriate naming per the
-[C++ style guide](https://google.github.io/styleguide/cppguide.html).
-This may potentially cause old programs to not compile.
-The most likely externally used `#define`s have been _aliased_ for limited
-backward compatibility for projects using the old style. Going forward, only the
-new `kConstantName` style will be supported for new protocol additions.
-
-In the unlikely case, it does break your code, then you may have been referencing
-something you likely should not have. You should be able to quickly determine
-the new name from the old. e.g. `CONSTANT_NAME` to `kConstantName`.
-Use common sense or examining the library's code if this does affect code.
-
-## Supported Protocols
-You can find the details of which protocols & devices are supported
-[here](https://github.com/crankyoldgit/IRremoteESP8266/blob/master/SupportedProtocols.md).
-
-## Troubleshooting
-Before reporting an issue or asking for help, please try to follow our [Troubleshooting Guide](https://github.com/crankyoldgit/IRremoteESP8266/wiki/Troubleshooting-Guide) first.
-
-## Frequently Asked Questions
-Some common answers to common questions and problems are on our [F.A.Q. wiki page](https://github.com/crankyoldgit/IRremoteESP8266/wiki/Frequently-Asked-Questions).
-
-## Library API Documentation
-This library uses [Doxygen](https://www.doxygen.nl/index.html) to [automatically document](https://crankyoldgit.github.io/IRremoteESP8266/doxygen/html/) the [library's](https://crankyoldgit.github.io/IRremoteESP8266/doxygen/html/) [API](https://en.wikipedia.org/wiki/Application_programming_interface).
-You can find it [here](https://crankyoldgit.github.io/IRremoteESP8266/doxygen/html/).
-
-## Installation
-##### Official releases via the Arduino IDE v1.8+ (Windows & Linux)
-1. Click the _"Sketch"_ -> _"Include Library"_ -> _"Manage Libraries..."_ Menu items.
-1. Enter `IRremoteESP8266` into the _"Filter your search..."_ top right search box.
-1. Click on the IRremoteESP8266 result of the search.
-1. Select the version you wish to install and click _"Install"_.
-
-##### Manual Installation for Windows
-1. Click on _"Clone or Download"_ button, then _"[Download ZIP](https://github.com/crankyoldgit/IRremoteESP8266/archive->master.zip)"_ on the page.
-1. Extract the contents of the downloaded zip file.
-1. Rename the extracted folder to _"IRremoteESP8266"_.
-1. Move this folder to your libraries directory. (under windows: `C:\Users\YOURNAME\Documents\Arduino\libraries\`)
-1. Restart your Arduino IDE.
-1. Check out the examples.
-
-##### Using Git to install the library ( Linux )
-```
-cd ~/Arduino/libraries
-git clone https://github.com/crankyoldgit/IRremoteESP8266.git
-```
-###### To update to the latest version of the library
-```
-cd ~/Arduino/libraries/IRremoteESP8266 && git pull
+```yaml
+esphome:
+  libraries:
+    - IRremoteESP8266=https://github.com/zain1144/IRremoteESP8266-ESPHome-LibreTiny.git#esphome-libretiny
 ```
 
-## Contributing
-If you want to [contribute](.github/CONTRIBUTING.md#how-can-i-contribute) to this project, consider:
-- [Reporting](.github/CONTRIBUTING.md#reporting-bugs) bugs and errors
-- Ask for enhancements
-- Improve our documentation
-- [Creating issues](.github/CONTRIBUTING.md#reporting-bugs) and [pull requests](.github/CONTRIBUTING.md#pull-requests)
-- Tell other people about this library
-- Updated documentation formatting and clarified installation steps (Hacktoberfest contribution by Prerna Utage)
+The complete tested firmware, Tasmota-compatible MQTT/HTTP interface, Home
+Assistant example, and Arabic guide are here:
 
+<https://github.com/zain1144/ESPHome-IRHVAC-BK7231N>
 
-## Contributors
-Available [here](.github/Contributors.md)
+## LibreTiny changes
 
-## Library History
-This library was originally based on Ken Shirriff's work (https://github.com/shirriff/Arduino-IRremote/)
+- Optional mark, space, carrier-frequency, and duty-cycle capture callbacks.
+- `irremote_esphome_bridge.h` forwards encoded timings to ESPHome.
+- The ESP8266/ESP32-specific receiver implementation is excluded on LibreTiny.
+- Sending and the common `IRac` HVAC API remain enabled.
+- Upstream behavior is unchanged when no capture callbacks are installed.
 
-[Mark Szabo](https://github.com/crankyoldgit/IRremoteESP8266) has updated the IRsend class to work on ESP8266 and [Sebastien Warin](https://github.com/sebastienwarin/IRremoteESP8266) the receiving & decoding part (IRrecv class).
+See [ESPHOME_LIBRETINY.md](ESPHOME_LIBRETINY.md) for technical details.
 
-As of v2.0, the library was almost entirely re-written with the ESP8266's resources in mind.
+## Package contents
 
-## About This Project
-This project allows decoding and encoding of IR signals for controlling Air Conditioners and other devices using ESP8266 or ESP32 boards.
+This repository contains all upstream v2.9.0 library sources under `src/`,
+including its locale headers, plus the PlatformIO/Arduino metadata and license
+required for direct installation. Upstream examples, tests, and extended
+documentation remain available in the
+[original repository](https://github.com/crankyoldgit/IRremoteESP8266).
+
+## Verified build
+
+Compiled successfully with:
+
+- ESPHome 2026.8.2
+- BK7231N
+- LibreTiny 1.12.1
+- IRremoteESP8266 2.9.0
+
+## License and attribution
+
+The upstream source remains under its original license and copyright notices.
+See [LICENSE.txt](LICENSE.txt). The compatibility additions are provided under
+the same license.
