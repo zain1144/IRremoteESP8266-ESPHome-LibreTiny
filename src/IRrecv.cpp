@@ -3,7 +3,6 @@
 // Copyright 2015 Sebastien Warin
 // Copyright 2017, 2019 David Conran
 
-#if !defined(LIBRETINY)
 #include "IRrecv.h"
 #include <stddef.h>
 #ifndef UNIT_TEST
@@ -148,7 +147,9 @@ namespace _IRrecv {
 static hw_timer_t *timer = NULL;
 }  // namespace _IRrecv
 #endif  // ESP32
+#if defined(ESP8266) || defined(ESP32)
 using _IRrecv::timer;
+#endif
 #endif  // UNIT_TEST
 
 namespace _IRrecv {  // Namespace extension
@@ -165,7 +166,7 @@ using _IRrecv::mux;
 using _IRrecv::params;
 using _IRrecv::params_save;
 
-#ifndef UNIT_TEST
+#if !defined(UNIT_TEST) && !defined(LIBRETINY)
 #if defined(ESP8266)
 /// Interrupt handler for when the timer runs out.
 /// It signals to the library that capturing of IR data has stopped.
@@ -263,7 +264,7 @@ static void USE_IRAM_ATTR gpio_intr() {
 #endif  // _ESP32_ARDUINO_CORE_V2PLUS
 #endif  // ESP32
 }
-#endif  // UNIT_TEST
+#endif  // !UNIT_TEST && !LIBRETINY
 
 // Start of IRrecv class -------------------
 
@@ -360,6 +361,12 @@ IRrecv::~IRrecv(void) {
 /// @param[in] pullup A flag indicating should the GPIO use the internal pullup
 /// resistor. (Default: `false`. i.e. No.)
 void IRrecv::enableIRIn(const bool pullup) {
+#if defined(LIBRETINY)
+  // ESPHome owns GPIO capture on LibreTiny. Keep this method harmless for
+  // compatibility; decodeRaw() is the supported receive entry point.
+  (void) pullup;
+  resume();
+#else
   // ESP32's seem to require explicitly setting the GPIO to INPUT etc.
   // This wasn't required on the ESP8266s, but it shouldn't hurt to make sure.
   if (pullup) {
@@ -413,11 +420,13 @@ void IRrecv::enableIRIn(const bool pullup) {
   // Attach Interrupt
   attachInterrupt(params.recvpin, gpio_intr, CHANGE);
 #endif  // UNIT_TEST
+#endif  // LIBRETINY
 }
 
 /// Stop collection of any received IR data.
 /// Disable any timers and interrupts.
 void IRrecv::disableIRIn(void) {
+#if !defined(LIBRETINY)
 #ifndef UNIT_TEST
 #if defined(ESP8266)
   os_timer_disarm(&timer);
@@ -433,6 +442,7 @@ void IRrecv::disableIRIn(void) {
 #endif  // ESP32
   detachInterrupt(params.recvpin);
 #endif  // UNIT_TEST
+#endif  // !LIBRETINY
 }
 
 /// Pause collection of received IR data.
@@ -1243,6 +1253,59 @@ bool IRrecv::decode(decode_results *results, irparams_t *save,
     resume();
   return false;
 }  // NOLINT(readability/fn_size)
+
+/// Decode a raw timing buffer captured by another framework.
+/// @param[out] results A pointer to the decoded result.
+/// @param[in,out] rawbuf Timings in kRawTick units. Entry 0 is a leading gap.
+///   The allocation must have room for a sentinel at rawbuf[rawlen].
+/// @param[in] rawlen Number of populated entries in rawbuf.
+/// @param[in] overflow Whether the external capture buffer overflowed.
+/// @param[in] max_skip Maximum number of leading mark/space pairs to skip.
+/// @param[in] noise_floor Optional noise filter threshold in microseconds.
+/// @return true when a known protocol or UNKNOWN hash was decoded.
+bool IRrecv::decodeRaw(decode_results *results, uint16_t *rawbuf,
+                       const uint16_t rawlen, const bool overflow,
+                       const uint8_t max_skip, const uint16_t noise_floor) {
+  if (results == nullptr || rawbuf == nullptr || rawlen <= kStartOffset ||
+      rawlen == UINT16_MAX)
+    return false;
+
+  // decode() uses the library's capture state. Temporarily point it at the
+  // external buffer, then restore every field before returning. ESPHome calls
+  // this from its main loop, so no capture ISR from this class is active.
+  const uint8_t saved_recvpin = params.recvpin;
+  const uint8_t saved_rcvstate = params.rcvstate;
+  const uint16_t saved_timer = params.timer;
+  const uint16_t saved_bufsize = params.bufsize;
+  uint16_t *const saved_rawbuf = params.rawbuf;
+  const uint16_t saved_rawlen = params.rawlen;
+  const uint8_t saved_overflow = params.overflow;
+  const uint8_t saved_timeout = params.timeout;
+  irparams_t *const saved_params = params_save;
+
+  params.rcvstate = kStopState;
+  params.bufsize = rawlen + 1;
+  params.rawbuf = rawbuf;
+  params.rawlen = rawlen;
+  params.overflow = overflow;
+  params_save = nullptr;
+
+  results->rawbuf = rawbuf;
+  results->rawlen = rawlen;
+  results->overflow = overflow;
+  const bool decoded = decode(results, nullptr, max_skip, noise_floor);
+
+  params.recvpin = saved_recvpin;
+  params.rcvstate = saved_rcvstate;
+  params.timer = saved_timer;
+  params.bufsize = saved_bufsize;
+  params.rawbuf = saved_rawbuf;
+  params.rawlen = saved_rawlen;
+  params.overflow = saved_overflow;
+  params.timeout = saved_timeout;
+  params_save = saved_params;
+  return decoded;
+}
 
 /// Convert the tolerance percentage into something valid.
 /// @param[in] percentage An integer percentage.
@@ -2122,4 +2185,3 @@ atomic_irparams_t *IRrecv::_getParamsPtr(void) {
 }
 #endif  // UNIT_TEST
 // End of IRrecv class -------------------
-#endif  // !LIBRETINY

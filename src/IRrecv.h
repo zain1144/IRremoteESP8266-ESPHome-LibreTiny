@@ -137,6 +137,13 @@ class IRrecv {
   uint8_t getTolerance(void);
   bool decode(decode_results *results, irparams_t *save = NULL,
               uint8_t max_skip = 0, uint16_t noise_floor = 0);
+  // Decode a caller-provided raw timing buffer. The values use kRawTick units,
+  // rawbuf[0] is the leading gap, and the allocation must contain room for a
+  // trailing sentinel at rawbuf[rawlen]. This is useful when another framework
+  // owns the GPIO capture backend, such as ESPHome on LibreTiny.
+  bool decodeRaw(decode_results *results, uint16_t *rawbuf,
+                 uint16_t rawlen, bool overflow = false,
+                 uint8_t max_skip = 0, uint16_t noise_floor = 0);
   void enableIRIn(const bool pullup = false);
   void disableIRIn(void);
   void pause(void);

@@ -4,9 +4,9 @@ A build-ready compatibility package based on the official
 [IRremoteESP8266 v2.9.0](https://github.com/crankyoldgit/IRremoteESP8266)
 release at upstream commit `a0c988c9af5130baae9a0c38dde895e1184b859c`.
 
-IRremoteESP8266 remains responsible for HVAC protocol and state encoding. This
-package adds an optional timing bridge so ESPHome's `remote_transmitter` can
-perform the physical IR output on LibreTiny targets such as BK7231N.
+IRremoteESP8266 remains responsible for HVAC protocol and state encoding and
+decoding. This package adds timing interfaces so ESPHome can perform physical
+IR transmit and receive on LibreTiny targets such as BK7231N.
 
 ## ESPHome usage
 
@@ -25,8 +25,11 @@ usage guide are maintained here:
 
 - Optional mark, space, carrier-frequency, and duty-cycle capture callbacks.
 - `irremote_esphome_bridge.h` forwards encoded timings to ESPHome.
-- The ESP8266/ESP32-specific receiver implementation is excluded on LibreTiny.
-- Sending and the common `IRac` HVAC API remain enabled.
+- `IRrecv::decodeRaw()` accepts frames captured by ESPHome's
+  `remote_receiver` and runs the full protocol decoder.
+- The ESP8266/ESP32-specific receiver hardware backend is disabled on
+  LibreTiny; ESPHome owns GPIO capture there.
+- Sending, decoding, and the common `IRac` HVAC API remain enabled.
 - Upstream behavior is unchanged when no capture callbacks are installed.
 
 See [ESPHOME_LIBRETINY.md](ESPHOME_LIBRETINY.md) for technical details.
