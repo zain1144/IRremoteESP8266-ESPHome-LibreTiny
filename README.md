@@ -32,12 +32,12 @@ when `LIBRETINY` is defined.
 
 ## ESPHome usage
 
-To track the maintained compatibility branch:
+To track the maintained main branch:
 
 ```yaml
 esphome:
   libraries:
-    - IRremoteESP8266=https://github.com/zain1144/IRremoteESP8266-ESPHome-LibreTiny.git#esphome-libretiny
+    - IRremoteESP8266=https://github.com/zain1144/IRremoteESP8266-ESPHome-LibreTiny.git#main
 ```
 
 To reproduce the hardware-tested build exactly:
@@ -113,7 +113,7 @@ The unmodified official library is not currently a drop-in replacement for
 these projects because it does not contain the timing callback bridge or the
 LibreTiny raw-capture interface. To adopt a newer IRremoteESP8266 release:
 
-1. Merge or rebase that upstream release into `esphome-libretiny`.
+1. Merge or rebase that upstream release into `main`.
 2. Resolve the five-file compatibility patch, keeping protocol files
    unchanged whenever possible.
 3. Compile the ESP8266, ESP32-C3, and BK7231N reference configurations.
@@ -122,9 +122,9 @@ LibreTiny raw-capture interface. To adopt a newer IRremoteESP8266 release:
 5. Move the tested commit pin only after those checks pass.
 
 PlatformIO caches Git dependencies and does not update them on every compile.
-When following `#esphome-libretiny`, run **Clean Build Files** in ESPHome after
+When following `#main`, run **Clean Build Files** in ESPHome after
 the branch changes. Use commit `#04b20e7` instead when reproducibility is more
-important than automatically following the compatibility branch.
+important than automatically following the maintained branch.
 
 ## Package contents
 

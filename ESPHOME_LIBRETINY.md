@@ -29,12 +29,12 @@ v2.9.0.
 
 ## ESPHome usage
 
-Track the compatibility branch:
+Track the maintained main branch:
 
 ```yaml
 esphome:
   libraries:
-    - IRremoteESP8266=https://github.com/zain1144/IRremoteESP8266-ESPHome-LibreTiny.git#esphome-libretiny
+    - IRremoteESP8266=https://github.com/zain1144/IRremoteESP8266-ESPHome-LibreTiny.git#main
   includes:
     - <irremote_esphome_bridge.h>
 ```
@@ -117,7 +117,7 @@ entry point. Merge a newer upstream release into this branch, preserve the
 small five-file patch, and rerun native ESP and LibreTiny hardware tests.
 
 PlatformIO caches Git dependencies. After updating
-`#esphome-libretiny`, use **Clean Build Files** in ESPHome before compiling.
+`#main`, use **Clean Build Files** in ESPHome before compiling.
 Pin `#04b20e7` when an identical dependency tree is required.
 
 ## Upstream attribution
